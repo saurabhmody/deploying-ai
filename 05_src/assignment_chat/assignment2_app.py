@@ -15,7 +15,6 @@ llm = get_graph()
 
 
 def assignment_chat(message: str, history: list[dict[str, Any]]) -> str:
-    """Use the example's Gradio callback to retain per-conversation memory."""
     langchain_messages = []
     n = 0
     for msg in history:
@@ -36,12 +35,6 @@ def assignment_chat(message: str, history: list[dict[str, Any]]) -> str:
         if role == "user":
             langchain_messages.append(HumanMessage(content=content))
         elif role == "assistant":
-            if content.startswith("Country Name: "):
-                content = "Displayed the full list. First entry: " + content.splitlines()[0]
-            else:
-                summary, _, directory = content.partition("\n\n")
-                if directory.startswith("Country Name: "):
-                    content = summary + "\nFirst entry: " + directory.splitlines()[0]
             langchain_messages.append(AIMessage(content=content))
             n += 1
     langchain_messages.append(HumanMessage(content=message))
@@ -56,10 +49,14 @@ if __name__ == "__main__":
     _logs.info("Starting Assignment 2 App...")
     chat = gr.ChatInterface(
         fn=assignment_chat,
-        chatbot=gr.Chatbot(render_markdown=False),
+        chatbot=gr.Chatbot(render_markdown=True, placeholder="#### Sample Prompts"),
         title="Assignment 2 Chat",
-        description="Welcome to Assignment 2 Chat! Please enter your questions about countries, or ask questions about The Blue Cross, and I will provide you with information.\n For Country Information, you can ask about Capitals, Regions, Alpha Codes, Calling Codes.",
-        examples=["List all countries", "Show the capitals and regions for all countries", "Provide a summary of the book 'The Blue Cross' by G.K. Chesterton"],
+        description="Welcome to Assignment 2 Chat! Please enter questions about countries, the Blue Cross book, or recent web topics, and I will provide a concise answer.  \nFor Country Information, you can ask about Capitals, Regions, Alpha Codes, and Calling Codes.",
+        examples=[
+            "Show the capital, region and alpha codes for Canada",
+            "Provide a summary of the book 'The Blue Cross' by G.K. Chesterton",
+            "Search the web for the latest headlines and summarize them briefly",
+        ],
         cache_examples=False,
     )
     chat.launch(share=False)

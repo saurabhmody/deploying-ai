@@ -1,9 +1,10 @@
 ## Assignment Chat
 
-This folder contains a small multi-tool chat app built around LangGraph, Gradio, OpenAI, and ChromaDB. The app supports following tools:
+This folder contains a small multi-tool chat app built around LangGraph, Gradio, OpenAI, and ChromaDB. The app supports the following tools:
 
 - Country information via the CountryLayer API
 - Book retrieval for G.K. Chesterton's The Blue Cross via a ChromaDB vector database
+- Current web information via OpenAI's web search capability
 
 The project is structured as a lightweight agent workflow: the LLM receives tool-enabled instructions, decides when to call tools, and formats a final response for the user. This app is designed to demonstrate how a chat interface can combine prompt instructions, external APIs, and semantic retrieval.
 
@@ -19,7 +20,7 @@ This code provides the Gradio web chat interface. It turns the user conversation
 
 ## assignment2_load_chromadb.py
 
-This code creates and populates a local ChromaDB vector store for The Blue Cross book. It loads the book text from the project documents folder into a persistent ChromaDB collection so the retrieval tool can do semantic search later. The load process reads the full book text and splits the document into chunks of 3000 characters with 300 characters overlap. Embeddings are created for each chunk and stored in ChromaDB along with the text and metadata. This creates a searchable semantic index where user questions can be compared against the embedded chunks rather than matching raw text exactly.
+This code creates and populates a local ChromaDB vector store for The Blue Cross book. It loads the book text from the project documents folder (../05_src/documents/chesterton) into a persistent ChromaDB collection so the retrieval tool can do semantic search later. The load process reads the full book text and splits the document into chunks of 3000 characters with 300 characters overlap. Embeddings are created for each chunk and stored in ChromaDB along with the text and metadata. This creates a searchable semantic index where user questions can be compared against the embedded chunks rather than matching raw text exactly.
 
 ## assignment2_prompts.py
 
@@ -34,3 +35,6 @@ This code provides the retrieval tool used to answer questions about The Blue Cr
 
 This code defines the country lookup tool. It queries the CountryLayer API to return requested country fields such as capital, region, alpha codes, and calling codes.
 
+## assignment2_tools_websearch.py
+
+This is a web-search tool that uses the OpenAI Responses API with the built-in `web_search` capability. It requires a search call for each request and returns a concise answer with source links.

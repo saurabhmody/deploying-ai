@@ -6,27 +6,24 @@ from dotenv import load_dotenv
 from langchain.tools import tool
 from openai import OpenAI
 
-_ASSIGNMENT_DIR = Path(__file__).resolve().parent
-_SOURCE_DIR = _ASSIGNMENT_DIR.parent
-_DATABASE_PATH = _ASSIGNMENT_DIR / "chroma_data"
-_COLLECTION_NAME = "blue_cross_document"
-_EMBEDDING_MODEL = "text-embedding-3-small"
-_GATEWAY_URL = "https://k7uffyg03f.execute-api.us-east-1.amazonaws.com/prod/openai/v1"
+DATABASE_PATH = Path(__file__).resolve().parent / "chroma_data"
+COLLECTION_NAME = "blue_cross_document"
+EMBEDDING_MODEL = "text-embedding-3-small"
 
-load_dotenv(_SOURCE_DIR / ".env")
-load_dotenv(_SOURCE_DIR / ".secrets")
+load_dotenv(".env")
+load_dotenv(".secrets")
 
-_USE_GATEWAY = os.getenv("USE_GATEWAY", "FALSE").upper() == "TRUE"
-_chroma_client = chromadb.PersistentClient(path=str(_DATABASE_PATH))
+USE_GATEWAY = os.getenv("USE_GATEWAY", "FALSE").upper() == "TRUE"
+chroma_client = chromadb.PersistentClient(path=str(DATABASE_PATH))
 
 
-def _get_openai_client() -> OpenAI:
-    if _USE_GATEWAY:
+def get_openai_client() -> OpenAI:
+    if USE_GATEWAY:
         gateway_key = os.getenv("API_GATEWAY_KEY")
         if not gateway_key:
             raise ValueError("Missing API_GATEWAY_KEY environment variable")
         return OpenAI(
-            base_url=_GATEWAY_URL,
+            base_url="https://k7uffyg03f.execute-api.us-east-1.amazonaws.com/prod/openai/v1",
             api_key=os.getenv("OPENAI_API_KEY") or "any value",
             default_headers={"x-api-key": gateway_key},
         )
@@ -41,14 +38,14 @@ def get_relevant_context(query: str, top_n: int = 3) -> str:
     if not query.strip():
         return ""
 
-    collection = _chroma_client.get_collection(name=_COLLECTION_NAME)
+    collection = chroma_client.get_collection(name=COLLECTION_NAME)
     result_count = min(top_n, collection.count())
     if result_count == 0:
         return ""
 
-    embedding_response = _get_openai_client().embeddings.create(
+    embedding_response = get_openai_client().embeddings.create(
         input=query,
-        model=_EMBEDDING_MODEL,
+        model=EMBEDDING_MODEL,
     )
     query_embedding = embedding_response.data[0].embedding
 

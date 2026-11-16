@@ -9,34 +9,34 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from assignment_chat.assignment2_prompts import return_instructions
 from assignment_chat.assignment2_tools_book import search_blue_cross
 from assignment_chat.assignment2_tools_country import get_country_info
+from assignment_chat.assignment2_tools_websearch import web_search
 
-_SOURCE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-load_dotenv(os.path.join(_SOURCE_DIR, ".env"))
-load_dotenv(os.path.join(_SOURCE_DIR, ".secrets"))
+load_dotenv(".env")
+load_dotenv(".secrets")
 
-_MODEL_NAME = os.getenv("OPENAI_MODEL") or os.getenv("MODEL", "openai:gpt-4o-mini")
-if ":" in _MODEL_NAME:
-    _MODEL_PROVIDER, _MODEL_NAME = _MODEL_NAME.split(":", 1)
+MODEL_NAME = os.getenv("OPENAI_MODEL") or os.getenv("MODEL", "gpt-4o-mini")
+if ":" in MODEL_NAME:
+    MODEL_PROVIDER, MODEL_NAME = MODEL_NAME.split(":", 1)
 else:
-    _MODEL_PROVIDER = "openai"
+    MODEL_PROVIDER = "openai"
 
-_MODEL_OPTIONS = {}
+MODEL_OPTIONS = {}
 if os.getenv("USE_GATEWAY", "FALSE").upper() == "TRUE":
     _gateway_key = os.getenv("API_GATEWAY_KEY")
     if not _gateway_key:
         raise ValueError("Missing API_GATEWAY_KEY environment variable")
-    _MODEL_OPTIONS.update(
+    MODEL_OPTIONS.update(
         base_url="https://k7uffyg03f.execute-api.us-east-1.amazonaws.com/prod/openai/v1",
         api_key=os.getenv("OPENAI_API_KEY") or "any value",
         default_headers={"x-api-key": _gateway_key},
     )
 
 chat_agent = init_chat_model(
-    _MODEL_NAME,
-    model_provider=_MODEL_PROVIDER,
-    **_MODEL_OPTIONS,
+    MODEL_NAME,
+    model_provider=MODEL_PROVIDER,
+    **MODEL_OPTIONS,
 )
-tools = [get_country_info, search_blue_cross]
+tools = [get_country_info, search_blue_cross, web_search]
 instructions = return_instructions()
 
 

@@ -53,7 +53,6 @@ def get_country_info(fields: list[CountryField] | None = None) -> str:
             COUNTRYLAYER_URL,
             headers={"apikey": api_key},
             allow_redirects=False,
-            timeout=20,
         )
         response.raise_for_status()
         countries = COUNTRIES.validate_python(response.json())
